@@ -1,0 +1,113 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Drum Kit</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Cargar scripts de MediaPipe oficiales -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js" crossorigin="anonymous"></script>
+    
+    <!-- Script para asegurarnos que MediaPipe esté disponible globalmente -->
+    <script>
+        window.onload = function() {
+            console.log('Checking MediaPipe availability...');
+            // Mostrar qué objetos de MediaPipe están disponibles
+            console.log('Hands available:', typeof window.Hands !== 'undefined');
+            console.log('Camera available:', typeof window.Camera !== 'undefined');
+            console.log('Drawing utils available:', 
+                typeof window.drawConnectors !== 'undefined' || 
+                typeof window.drawLandmarks !== 'undefined');
+            
+            // Para evitar posibles errores, podemos añadir nuestras propias implementaciones fallback
+            if (!window.Hands && !window.mediapipe) {
+                console.warn('MediaPipe Hands not available, creating a dummy implementation');
+                window.Hands = class Hands {
+                    constructor() { 
+                        console.warn('Using dummy Hands implementation!');
+                    }
+                    setOptions() {}
+                    onResults() {}
+                    send() { return Promise.resolve(); }
+                };
+            }
+            
+            if (!window.Camera && !window.mediapipe) {
+                console.warn('MediaPipe Camera not available, creating a dummy implementation');
+                window.Camera = class Camera {
+                    constructor() {
+                        console.warn('Using dummy Camera implementation!');
+                    }
+                    start() {}
+                    stop() {}
+                };
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Air Drum Kit</h1>
+        
+        <div id="permission-request" class="permission-request">
+            <p>Esta aplicación necesita acceso a tu cámara para detectar los movimientos de tus manos.</p>
+            <button id="grant-permission">Permitir Acceso</button>
+        </div>
+        
+        <div id="app-content" class="hidden">
+            <div class="camera-container">
+                <video id="video-input" autoplay playsinline></video>
+                <canvas id="output-canvas"></canvas>
+            </div>
+            
+            <div class="drum-kit">
+                <div class="drum hihat" data-sound="hihat">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#f1c40f" stroke="#e67e22" stroke-width="2"/>
+                        <text x="50" y="55" text-anchor="middle" fill="#333">Hi-Hat</text>
+                    </svg>
+                </div>
+                <div class="drum snare" data-sound="snare">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+                        <text x="50" y="55" text-anchor="middle" fill="#333">Snare</text>
+                    </svg>
+                </div>
+                <div class="drum kick" data-sound="kick">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                        <text x="50" y="55" text-anchor="middle" fill="#333">Kick</text>
+                    </svg>
+                </div>
+                <div class="drum tom1" data-sound="tom1">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+                        <text x="50" y="55" text-anchor="middle" fill="#333">Tom 1</text>
+                    </svg>
+                </div>
+                <div class="drum tom2" data-sound="tom2">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="#2ecc71" stroke="#27ae60" stroke-width="2"/>
+                        <text x="50" y="55" text-anchor="middle" fill="#333">Tom 2</text>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="toggle-camera">Pausar Cámara</button>
+                <button id="reset-positions">Reiniciar Posiciones</button>
+            </div>
+            
+            <div class="instructions">
+                <h2>Instrucciones</h2>
+                <p>Mueve tus manos en el aire como si estuvieras tocando una batería. El sistema detectará tus movimientos y reproducirá los sonidos correspondientes.</p>
+                <p>Prueba a "golpear" diferentes áreas de la pantalla para activar los distintos elementos de la batería.</p>
+            </div>
+        </div>
+    </div>
+    <!-- Quitar type="module" para evitar problemas de importación -->
+    <script src="app.js"></script>
+</body>
+</html>
